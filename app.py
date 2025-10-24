@@ -79,7 +79,6 @@ def is_approved(url):
     """Indicates whether the given URL is allowed to be fetched.  This
     prevents the server from becoming an open proxy"""
     parts = urlparse(url)
-    breakpoint()
     return parts.netloc in APPROVED_HOSTS
 
 def proxied_request_info(proxy_url):
