@@ -41,11 +41,13 @@
 
     <!-- DSFR JS (CDN) and initialization -->
     <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.0/dist/dsfr.umd.min.js"></script>
+    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
     <script>if (window.dsfr) window.dsfr.init();</script>
 
     <script>
       async function updateDemarcheID(data) {
           console.log(data)
+          console.log(data.demarcheID)
           clearDemarcheID();
           document.getElementById('docID').textContent = data.demarcheID;
       }
