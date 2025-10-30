@@ -47,7 +47,7 @@
     <script>
       async function updateDemarcheID(data) {
           console.log(data.demarcheID)
-          document.getElementById('docID').textContent = data.demarcheID;
+          document.getElementById('docID').value = data.demarcheID;
       }
 
       document.getElementById('tokenForm').addEventListener('submit', async (ev) => {
