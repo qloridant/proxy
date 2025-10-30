@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Envoyer un token</title>
+    <!-- DSFR CSS (CDN). Adjust version if you want a pinned release. -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.0/dist/dsfr.min.css" />
+    <style>
+      /* Light container width override to keep the page compact */
+      .app-main { max-width: 720px; margin: 1.5rem auto; }
+      pre { background:#f6f6f6; padding:12px; overflow:auto; }
+    </style>
+  </head>
+  <body class="fr">
+    <div id="root">
+
+      <main class="fr-container app-main" id="content" role="main">
+        <h1 class="fr-h1">Envoyer un token</h1>
+        <p class="fr-mb-4w">La page récupère un identifiant de document depuis une table Grist et envoie ce document avec le token saisi.</p>
+
+        <form id="tokenForm" class="fr-form" novalidate>
+          <div class="fr-form-group">
+            <label class="fr-label" for="token">Token</label>
+            <input class="fr-input" id="token" name="token" type="text" placeholder="Entrez le token" required aria-required="true" />
+          </div>
+
+          <div class="fr-form-group">
+            <label class="fr-label" for="docId">Identifiant de document (chargé depuis Grist)</label>
+            <input class="fr-input" id="docId" name="docId" type="text" readonly aria-readonly="true" />
+          </div>
+        </br>
+
+          <button class="fr-btn" type="submit">Exécuter GraphQL</button>
+        </form>
+
+        <h2 class="fr-h3 fr-mt-4w">Résultat</h2>
+        <pre id="result">(aucune activité)</pre>
+      </main>
+    </div>
+
+    <!-- DSFR JS (CDN) and initialization -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.0/dist/dsfr.umd.min.js"></script>
+    <script>if (window.dsfr) window.dsfr.init();</script>
+
+    <script>
+      async function updateDemarcheID(data) {
+          console.log(data)
+          clearDemarcheID();
+          document.getElementById('docID').textContent = data.demarcheID;
+      }
+
+      document.getElementById('tokenForm').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const token = document.getElementById('token').value;
+        const docId = document.getElementById('docId').value;
+        const payload = { token, docId };
+        document.getElementById('result').textContent = 'Envoi en cours...';
+        try {
+          const res = await fetch('/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const text = await res.text();
+          try {
+            const j = JSON.parse(text);
+            document.getElementById('result').textContent = JSON.stringify(j, null, 2);
+          } catch (_) {
+            document.getElementById('result').textContent = text;
+          }
+        } catch (e) {
+          document.getElementById('result').textContent = 'Échec de l\'envoi : ' + e;
+        }
+      });
+
+      // Load the docId on startup
+      grist.ready();
+
+      grist.onRecord((record) => {
+        console.log("Received record:", record);
+        if (record?.demarcheID) {
+            updateDemarcheID(record);
+        } else {
+            console.warn("Missing Demarche Id");
+        }
+      });
+    </script>
+  </body>
+</html>
